@@ -1,6 +1,19 @@
 # Changelog
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [3.11.0] - 2017-05-12
+### Added
+- `muteUsers` config option for muting users on Slack and IRC -
+ [#174](https://github.com/ekmartin/slack-irc/pull/174).
+
+## [3.10.1] - 2017-04-30
+### Changed
+- Upgrade @slack/client to 3.9.0.
+
+## [3.10.0] - 2017-04-30
+### Added
+- Report file uploads to IRC - [#193](https://github.com/ekmartin/slack-irc/pull/193).
+
 ## [3.9.0] - 2016-11-07
 ### Added
 - Config option `slackUsernameFormat`, which allows for

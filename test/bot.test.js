@@ -251,6 +251,28 @@ describe('Bot', function () {
     ClientStub.prototype.say.should.have.been.calledWith('#irc', ircText);
   });
 
+  it('should send files to irc', function () {
+    const link1 = 'test1';
+    const link2 = 'test2';
+    const text = 'testcomment';
+    const message = {
+      text: '',
+      channel: 'slack',
+      subtype: 'file_share',
+      file: {
+        permalink: link1,
+        permalink_public: link2,
+        initial_comment: {
+          comment: text
+        }
+      }
+    };
+
+    this.bot.sendToIRC(message);
+    const ircText = `<testuser> File uploaded ${link1} / ${link2} - ${text}`;
+    ClientStub.prototype.say.should.have.been.calledWith('#irc', ircText);
+  });
+
   it('should not send messages to irc if the channel isn\'t in the channel mapping',
   function () {
     this.bot.slack.rtm.dataStore.getChannelGroupOrDMById = () => null;
@@ -344,5 +366,25 @@ describe('Bot', function () {
       '#irc', 'Command sent from Slack by testuser:'
     ]);
     ClientStub.prototype.say.getCall(1).args.should.deep.equal(['#irc', text]);
+  });
+
+  it('should not forward messages from users in slack mute list', function () {
+    this.bot.muteUsers.slack = ['testuser'];
+    const text = 'testmessage';
+    const message = {
+      text,
+      channel: 'slack'
+    };
+
+    this.bot.sendToIRC(message);
+    ClientStub.prototype.say.should.not.have.been.called;
+  });
+
+  it('should not forward messages from users in irc mute list', function () {
+    this.bot.muteUsers.irc = ['testuser'];
+    const text = 'testmessage';
+
+    this.bot.sendToSlack('testuser', '#irc', text);
+    this.bot.slack.web.chat.postMessage.should.not.have.been.called;
   });
 });
