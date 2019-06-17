@@ -78,8 +78,7 @@ describe('Bot', function () {
     this.bot.slack.web.chat.postMessage.should.have.been.calledWith(1, text, message);
   });
 
-  it('should not include an avatar for the bot\'s own messages',
-  function () {
+  it('should not include an avatar for the bot\'s own messages', function () {
     const text = 'testmessage';
     const message = {
       username: `${config.nickname} (IRC)`,
@@ -156,8 +155,7 @@ describe('Bot', function () {
     this.bot.slack.web.chat.postMessage.should.have.been.calledWith(1, text, message);
   });
 
-  it('should not send messages to slack if the channel isn\'t in the channel mapping',
-  function () {
+  it('should not send messages to slack if the channel isn\'t in the channel mapping', function () {
     this.bot.sendToSlack('user', '#wrongchan', 'message');
     this.bot.slack.web.chat.postMessage.should.not.have.been.called;
   });
@@ -238,6 +236,40 @@ describe('Bot', function () {
     ClientStub.prototype.say.should.have.been.calledWith('#irc', ircText);
   });
 
+  it('should allow custom user formats for irc', function () {
+    const customIRCUsernameFormatConfig = {
+      ...config,
+      ircUsernameFormat: '$username: '
+    };
+    const bot = createBot(customIRCUsernameFormatConfig);
+    const text = 'testmessage';
+    const message = {
+      text,
+      channel: 'slack'
+    };
+
+    bot.sendToIRC(message);
+    const ircText = `testuser: ${text}`;
+    ClientStub.prototype.say.should.have.been.calledWith('#irc', ircText);
+  });
+
+  it('should allow to remove user name in formats for irc', function () {
+    const customIRCUsernameFormatConfig = {
+      ...config,
+      ircUsernameFormat: ''
+    };
+    const bot = createBot(customIRCUsernameFormatConfig);
+    const text = 'testmessage';
+    const message = {
+      text,
+      channel: 'slack'
+    };
+
+    bot.sendToIRC(message);
+    const ircText = `${text}`;
+    ClientStub.prototype.say.should.have.been.calledWith('#irc', ircText);
+  });
+
   it('should send /me messages to irc', function () {
     const text = 'testmessage';
     const message = {
@@ -273,8 +305,7 @@ describe('Bot', function () {
     ClientStub.prototype.say.should.have.been.calledWith('#irc', ircText);
   });
 
-  it('should not send messages to irc if the channel isn\'t in the channel mapping',
-  function () {
+  it('should not send messages to irc if the channel isn\'t in the channel mapping', function () {
     this.bot.slack.rtm.dataStore.getChannelGroupOrDMById = () => null;
     const message = {
       channel: 'wrongchannel'
@@ -284,8 +315,7 @@ describe('Bot', function () {
     ClientStub.prototype.say.should.not.have.been.called;
   });
 
-  it('should send messages from slackbot if slackbot muting is off',
-  function () {
+  it('should send messages from slackbot if slackbot muting is off', function () {
     const text = 'A message from Slackbot';
     const message = {
       text,
@@ -297,8 +327,7 @@ describe('Bot', function () {
     ClientStub.prototype.say.should.have.been.calledWith('#irc', ircText);
   });
 
-  it('should not send messages from slackbot to irc if slackbot muting is on',
-  function () {
+  it('should not send messages from slackbot to irc if slackbot muting is on', function () {
     this.bot.muteSlackbot = true;
     const message = {
       user: 'USLACKBOT',
